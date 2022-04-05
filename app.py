@@ -9,7 +9,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 app = Flask(__name__)
 
 # Require templates to be auto-reloaded
-# app.config["TEMPLATES_AUTO_RELOAD"] = True
+app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 # Configure system to use filesystem (rather than cookies)
 # app.config["SESSION_PERMANENT"] = False
@@ -18,4 +18,4 @@ app = Flask(__name__)
 
 @app.route("/")
 def home():
-    return render_template("layout.html")
+    return render_template("landing.html")
