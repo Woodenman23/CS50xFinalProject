@@ -3,3 +3,11 @@
 {
     color: #2e944b;
 }
+#navbar
+{
+    background-color: rgb(186, 11, 11);
+}
+nav .navbar-brand
+{
+    font-size: xx-large;
+}
