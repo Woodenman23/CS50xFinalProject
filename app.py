@@ -4,6 +4,9 @@ from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.security import check_password_hash, generate_password_hash
+import sqlite3
+
+from helpers import error
 
 # Configure application
 app = Flask(__name__)
@@ -16,14 +19,51 @@ app.config["TEMPLATES_AUTO_RELOAD"] = True
 # # app.config["SESSION_TYPE"] = "filesystem"
 # Session(app)
 
+conn = sqlite3.connect("userdata.db")
+c = conn.cursor()
+
+# create table to store user data
+c.execute(
+    '''CREATE TABLE IF NOT EXISTS users
+    (name text NOT NULL, email text, password_hash)''')
+conn.commit()
+conn.close()
+
+
 @app.route("/")
 def home():
     return render_template("index.html")
+
 
 @app.route("/register")
 def register():
     return render_template("register.html")
 
-@app.route("/login")
+@app.route("/login", methods=["GET", "POST"])
 def login():
-    return render_template("login.html")
+    session.clear()
+
+    if request.method == "POST":
+
+        if not request.form.get("username"):
+            return error("must provide username")
+
+        # Ensure password was submitted
+        elif not request.form.get("password"):
+            return error("must provide password", 403)
+
+        # Query database for username
+        rows = c.execute("SELECT * FROM users WHERE username = ?", request.form.get("username"))
+
+        # Ensure username exists and password is correct
+        if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")):
+            return error("invalid username and/or password", 403)
+
+        # Remember which user has logged in
+        session["user_id"] = rows[0]["id"]
+
+        # Redirect user to home page
+        return redirect("/")
+
+    else:
+        return render_template("login.html")
