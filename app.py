@@ -1,12 +1,12 @@
 import os
 
 from flask import Flask, flash, redirect, render_template, request, session
-from flask_session import Session
+# from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.security import check_password_hash, generate_password_hash
 import sqlite3
 
-from helpers import error
+from website.helpers import error
 
 # Configure application
 app = Flask(__name__)
@@ -46,18 +46,18 @@ def login():
     if request.method == "POST":
 
         if not request.form.get("username"):
-            return error("must provide username")
+            flash("Must provide username", category = 'error')
 
         # Ensure password was submitted
         elif not request.form.get("password"):
-            return error("must provide password", 403)
+            flash("must provide password", category='error')
 
         # Query database for username
         rows = c.execute("SELECT * FROM users WHERE username = ?", request.form.get("username"))
 
         # Ensure username exists and password is correct
         if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")):
-            return error("invalid username and/or password", 403)
+           flash("Invalid username and/or password", category='error')
 
         # Remember which user has logged in
         session["user_id"] = rows[0]["id"]
