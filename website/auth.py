@@ -38,5 +38,7 @@ def login():
         # Redirect user to home page
         return redirect("/")
 
+
+
     else:
         return render_template("login.html")
